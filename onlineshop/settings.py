@@ -15,12 +15,20 @@ ALLOWED_HOSTS = allowed_hosts.split(',') if allowed_hosts else []
 
 
 INSTALLED_APPS = [
+    #django default apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #my apps
+    'apps.carts',
+    'apps.orders',
+    'apps.products',
+    'apps.users',
+    #third party apps
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
