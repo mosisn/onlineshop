@@ -1,10 +1,13 @@
 from pathlib import Path
 import os
+import sys
 from dotenv import load_dotenv
 
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+sys.path.append(str(BASE_DIR / 'apps'))
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
@@ -23,10 +26,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #my apps
-    'apps.carts',
-    'apps.orders',
-    'apps.products',
-    'apps.users',
+    'carts',
+    'orders',
+    'products',
+    'users',
     #third party apps
     'rest_framework',
 ]
@@ -98,3 +101,5 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'users.User'
