@@ -1,7 +1,6 @@
 from django.db import models
 from .category import Category
 from django.utils.text import slugify
-from users.models import User
 
 STATUS_CHOICES = (
     ('active', 'Active'),
@@ -30,6 +29,7 @@ class Product(models.Model):
         discount (models.DecimalField): The discount applied to the product, with a maximum of 10 digits and up to 2 decimal places.
             - The `null` and `blank` parameters allow the discount field to be left empty.
         stock (models.PositiveIntegerField): The current stock level of the product, with a default value of 0.
+        low_stock_threshold (models.PositiveIntegerField): The minimum stock level that triggers a low stock alert, with a default value of 5.
         created_at (models.DateTimeField): The date and time when the product was created, automatically set when the product is first saved.
         updated_at (models.DateTimeField): The date and time when the product was last updated, automatically set whenever the product is saved.
 
@@ -37,6 +37,9 @@ class Product(models.Model):
         save(self, *args, **kwargs): Overrides the default save method to automatically generate the slug from the product name if it has not been set.
             - If the `slug` field is empty, it generates a slug using the `slugify` function from `django.utils.text`.
             - Calls the parent class's `save` method to save the updated object.
+        update_stock(self, quantity): Updates the stock quantity of the product by the specified `quantity`.
+            - Adds the `quantity` to the current `stock_quantity` and saves the updated product.
+        is_low_stock (property): Returns `True` if the current stock quantity is less than or equal to the `low_stock_threshold`, indicating that the product is in low stock.
     """
     category = models.ManyToManyField(
         Category,
@@ -71,6 +74,9 @@ class Product(models.Model):
     stock = models.PositiveIntegerField(
         default=0
     )
+    low_stock_threshold = models.PositiveIntegerField(
+        default=5
+    )
     created_at = models.DateTimeField(
         auto_now_add=True
     )
@@ -82,3 +88,11 @@ class Product(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
+    
+    def update_stock(self, quantity):
+        self.stock_quantity += quantity
+        self.save()
+
+    @property
+    def is_low_stock(self):
+        return self.stock_quantity <= self.low_stock_threshold
