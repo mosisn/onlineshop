@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from models.product import Product
 from models.category import Category
-
+from models.order import Order, OrderItem
+from models.review import Review
+from users.serializers import UserSerializer
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -59,4 +61,55 @@ class ProductSerializer(serializers.ModelSerializer):
             # Perform any custom logic before updating the product instance
             product = super().update(instance, validated_data)
             # Perform additional actions after updating the product instance
-            return product
+            return product 
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+
+    class Meta:
+        model = OrderItem
+        fields = [
+            'id',
+            'product',
+            'quantity',
+            'price'
+            ]
+
+class OrderSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    items = OrderItemSerializer(many=True, read_only=True)
+    total_cost = serializers.ReadOnlyField()
+    total_products = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Order
+        fields = [
+            'id',
+            'user',
+            'order_date',
+            'cost',
+            'status',
+            'address',
+            'created_at',
+            'updated_at',
+            'items',
+            'total_cost',
+            'total_products'
+            ]
+
+
+class ReviewSerializer(serializers.Serializer):
+    user = UserSerializer(read_only=True)
+    Product = ProductSerializer(read_only=True)
+    class Meta:
+        model = Review
+        fields = [
+            'id',
+            'user',
+            'product',
+            'rating',
+            'text',
+            'created_at',
+            'updated_at'
+            ]
